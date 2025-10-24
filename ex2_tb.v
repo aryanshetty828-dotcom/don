@@ -1,37 +1,32 @@
 `timescale 1ns/1ns
 `include "ex2.v"
+module async_up_counter_tb;
 
-module seq_circuit_tb;
-    reg x, clk, reset;
-    wire [1:0] state;
-    wire y;
+    reg clk, clear;
+    wire [3:0] Q;
 
-    seq_circuit DUT(x, clk, reset, state, y);
+    async_up_counter uut (
+        .clk(clk),
+        .clear(clear),
+        .Q(Q)
+    );
 
-    // Clock generation
+    always #5 clk = ~clk;
+
     initial begin
         clk = 0;
-        forever #10 clk = ~clk;
+        clear = 0;
+
+        #10 clear = 1;
+
+        #200 $finish;
     end
 
-    // Test sequence
     initial begin
-        $dumpfile("seq_circuit_tb.vcd");
-        $dumpvars(0, seq_circuit_tb);
-        $monitor("Time=%0t | reset=%b | x=%b | state=%b | y=%b", 
-                  $time, reset, x, state, y);
-
-        // Initialize
-        reset = 1; x = 0; #20;
-        reset = 0;
-
-        x = 0; #40;
-        x = 1; #40;
-        x = 0; #40;
-        x = 1; #40;
-        x = 0; #40;
-
-        $display("Simulation Complete");
-        $finish;
+        $dumpfile("async_up_counter.vcd");
+        $dumpvars(0, async_up_counter_tb);
+        $monitor("Time=%0t | Clear=%b | Q=%b", $time, clear, Q);
     end
+
 endmodule
+
